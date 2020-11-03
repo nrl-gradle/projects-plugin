@@ -24,8 +24,8 @@ dependencies {
 
 
 pluginBundle {
-    website = 'https://geoint.nrlssc.org/'
-    vcsUrl = 'https://github.com/seanrl/nrl-gradle/projects-plugin.git'
+    website = 'https://github.com/nrl-gradle/projects-plugin'
+    vcsUrl = 'https://github.com/nrl-gradle/projects-plugin.git'
     tags = ['subproject', 'composite', 'coproject', 'dependencies']
 }
 
