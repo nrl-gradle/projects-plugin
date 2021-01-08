@@ -199,6 +199,7 @@ class ProjectsSettingsPlugin implements Plugin<Settings>{
             List<String> coProjects = getCoProjects(rootPath, allSubProjects, settings.rootProject.name)
             if (coProjects.size() > 0) {
                 for (String comp in coProjects) {
+                    
                     logger.debug("root include $comp")
                     settings.includeBuild(comp)
                 }
