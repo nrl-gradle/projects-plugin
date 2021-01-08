@@ -2,18 +2,11 @@ package nrlssc.gradle
 
 import nrlssc.gradle.conventions.GlobalDepsConvention
 import nrlssc.gradle.conventions.ProjectsConvention
-import nrlssc.gradle.tasks.LookupDependenciesTask
-import nrlssc.gradle.tasks.UpdateDependenciesTask
 import org.gradle.api.Plugin
-import org.gradle.api.artifacts.ComponentSelection
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.initialization.Settings
-import org.gradle.api.plugins.JavaPlugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.util.regex.Pattern
 
 class ProjectsSettingsPlugin implements Plugin<Settings>{
     private static Logger logger = LoggerFactory.getLogger(ProjectsSettingsPlugin.class)
@@ -105,78 +98,15 @@ class ProjectsSettingsPlugin implements Plugin<Settings>{
         return finalProjList
     }
     
-    public static String UP_CONFIG = "updateResolver"
-    public static String UP_REL_CONFIG = "updateResolverRelease"
-
-    
     @Override
     void apply(Settings settings) {
         logger.lifecycle("Applying projects plugin to " + settings.rootProject.name)
         settings.gradle.allprojects { proj ->
-            
             //apply plugins?
             proj.configurations.all {
                 it.resolutionStrategy {
                     preferProjectModules()
                 }
-            }
-
-            
-            proj.plugins.withType(JavaPlugin.class) {
-                Configuration upConf = proj.configurations.create(UP_CONFIG)
-                Configuration upConfRel = proj.configurations.create(UP_REL_CONFIG)
-                
-                Configuration defConf = proj.configurations.getByName('default')
-                
-                upConf.extendsFrom(defConf)
-                upConf.transitive = false
-
-                upConfRel.extendsFrom(defConf)
-                upConfRel.transitive = false
-                
-                proj.configurations.add(upConfRel)
-                proj.configurations.add(upConf)
-                
-                proj.configurations {
-                    upConf
-                    upConfRel
-                }
-                //upConf.extendsFrom(proj.configurations.getByName('default'))
-                upConf.resolutionStrategy {
-                    cacheDynamicVersionsFor 0, 'seconds'
-                    cacheChangingModulesFor 0, 'seconds'
-
-                    eachDependency { DependencyResolveDetails details ->
-                        //specifying a fixed version for all libraries with 'org.gradle' group
-                        if (details.requested.group == project.group) {
-                            details.useVersion '+'
-                        }
-                    }
-                }
-                
-                upConfRel.resolutionStrategy {
-                    cacheDynamicVersionsFor 0, 'seconds'
-                    cacheChangingModulesFor 0, 'seconds'
-
-                    eachDependency { DependencyResolveDetails details ->
-                        //specifying a fixed version for all libraries with 'org.gradle' group
-                        if (details.requested.group == project.group) {
-                            details.useVersion '+'
-                        }
-                    }
-                    
-                    componentSelection {
-                        all { ComponentSelection selection ->
-                            if(selection.candidate.group.equalsIgnoreCase(proj.group.toString())) {
-                                if (!selection.candidate.version.matches(Pattern.compile(/(\d+\.?)+/))) {
-                                    selection.reject("rejecting non-release version ${selection.candidate.version} for ${selection.candidate.module}")
-                                }
-                            }
-                        }
-                        
-                    }
-                }
-                
             }
         }
         
@@ -212,11 +142,6 @@ class ProjectsSettingsPlugin implements Plugin<Settings>{
             it.pluginManager.apply(GlobalDepsPlugin.class)
             it.pluginManager.apply(SubprojSubstitutionPlugin.class)
             it.convention.plugins.ProjectSettingsConvention = new ProjectsConvention(it)
-            
-            UpdateDependenciesTask.createFor(it)
-            UpdateDependenciesTask.createRCFor(it)
-            LookupDependenciesTask.createFor(it)
-            LookupDependenciesTask.createRCFor(it)
         }
         //endregion
     }
