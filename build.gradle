@@ -3,7 +3,7 @@ plugins{
     id 'groovy'
     id 'ivy-publish'
     id 'com.gradle.plugin-publish' version '0.11.0'
-    id 'nrlssc.gradle' version '3.0.85'
+    id 'nrlssc.gradle' version '3.0.88'
 }
 
 sourceCompatibility = 1.8
@@ -14,8 +14,8 @@ hgit{
 }
 
 dependencies {
-    compileClasspath gradleApi()
-    compileClasspath localGroovy()
+    api gradleApi()
+    implementation localGroovy()
     //compileClasspath 'mil.navy.nrlssc:gplugin-commons:2.0.7' //DO NOT EVER ADD THIS BACK - IT CAUSES SIGNIFICANT DEPLOYMENT CLASSPATH CLASHES WITH PROJECT PLUGINS
 
     testImplementation gradleTestKit(),
