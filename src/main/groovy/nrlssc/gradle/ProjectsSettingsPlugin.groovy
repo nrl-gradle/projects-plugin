@@ -79,18 +79,26 @@ class ProjectsSettingsPlugin implements Plugin<Settings>{
             if (coprojFile.exists()) {
                 logger.lifecycle("Setting up coprojects for " + (proj == ":" ? rootProjName : proj))
                 String siblingRootPath = (new File(fileProjPath)).getParentFile().getAbsolutePath()
+                String subRootPath = new File(fileProjPath + "/coprojects").getAbsolutePath()
                 String[] cops = script.evaluate(coprojFile)
                 for (String cop in cops) {
-                    String pth = siblingRootPath + "/" + cop
-                    File copProj = new File(pth)
-                    if(copProj.exists())
-                    {
-                        String copPath = root.toURI().relativize(copProj.toURI()).toString()
-                        logger.lifecycle("\tIncluding coproject: $cop")
-                        finalProjList.add(copPath)
+                    boolean exists = false
+                    for(String rootPth : new String[]{siblingRootPath, subRootPath}) {
+                        String pth = rootPth + "/" + cop
+                        File copProj = new File(pth)
+                        if (copProj.exists()) {
+                            String copPath = root.toURI().relativize(copProj.toURI()).toString()
+                            logger.lifecycle("\tIncluding coproject: $cop")
+                            finalProjList.add(copPath)
+                            exists = true
+                            break
+                        } else {
+                            exists = false
+                        }
                     }
-                    else{
-                        logger.lifecycle("\tCould not include coproject: ${copProj.path}")
+                    if(!exists)
+                    {
+                        logger.lifecycle("\tCould not include coproject: ${cop}")
                     }
                 }
             }
@@ -109,8 +117,7 @@ class ProjectsSettingsPlugin implements Plugin<Settings>{
                 }
             }
         }
-        
-        
+
         String rootPath = settings.buildscript.sourceFile.getParentFile().getAbsolutePath()
         //region subprojects
         List<String> allSubProjects = getSubProjects(rootPath)
