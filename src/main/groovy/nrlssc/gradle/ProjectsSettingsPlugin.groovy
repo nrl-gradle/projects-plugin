@@ -83,7 +83,7 @@ class ProjectsSettingsPlugin implements Plugin<Settings>{
                 String[] cops = script.evaluate(coprojFile)
                 for (String cop in cops) {
                     boolean exists = false
-                    for(String rootPth : new String[]{siblingRootPath, subRootPath}) {
+                    for(String rootPth : [ siblingRootPath, subRootPath ]) {
                         String pth = rootPth + "/" + cop
                         File copProj = new File(pth)
                         if (copProj.exists()) {
